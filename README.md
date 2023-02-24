@@ -1,4 +1,4 @@
-# GaRLiC
+# grlic
 
 
 

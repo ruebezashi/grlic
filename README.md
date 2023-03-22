@@ -30,8 +30,12 @@ Any issues and questions will be answered by the author of the code, Sebastian S
 
 E-Mail: sebastian.schulz@uzh.ch
 
+## Data repository
+[![DOI](https://sandbox.zenodo.org/badge/DOI/10.5072/zenodo.1175536.svg)](https://doi.org/10.5072/zenodo.1175536)
+
 
 ## Roadmap
+
 
 
 ## Contributing

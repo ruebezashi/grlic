@@ -3,13 +3,22 @@ import numpy as np
 from scipy.interpolate import CubicSpline
 from scipy.integrate import quad
 
-from settings import alpha
-#given the n(r), returns the probability density taking the survey volume into account (normalizing by the number of objects in the data catalogue N)
+from settings import alpha, deg
 
+#given the n(r), returns the probability density taking the survey volume into account (normalizing by the number of objects in the data catalogue N)
 def prob_dens(r, n, N, mumin):
     
     return(2*(1-mumin)*np.pi/N*n(r)*r**2)
 
+'''
+#returns the cumulative probability given a polynomial with coefficients p, taking the survey volume into account (normalizing by the number of objects in the data catalogue N)
+def cumul_polynomial(r, p, N, mumin, rmin):
+    
+    f = 0
+    for i in range(deg+1):
+        f += 2*(1-mumin)*np.pi/N *((r**(i+3) * p[deg-i] / (i+3)) - (rmin**(i+3) * p[deg-i] / (i+3)))
+    return(f)
+'''
 
 #generates a poisson sampled random catalogue on the full spherical shell with alpha times N_cat objects in the actual survey volume, based on the n(r) of a data catalogue with N_cat objects, assuming a spherical cone shape with half-opening cosine angle mu_min and limits r_min to r_max
 #the survey volume will contain alpha times N_cat objects, the rest of the spherical shell will be filled up with objects according to the same n(r)
@@ -25,7 +34,7 @@ def random_full(r, n, N_cat, rmin, rmax, mumin):
     
     #initiate cumulative probability array
     cumul = np.zeros_like(x)
-    
+
     #integrate probability density
     for i in range(len(x)):
         cumul[i] = quad(prob_dens, rmin, x[i], args = (spline1, N_cat, mumin))[0]

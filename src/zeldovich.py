@@ -1,5 +1,6 @@
 import gc
 import numpy as np
+import warnings
 
 from scipy.fft import fftfreq
 from scipy.fft import fft
@@ -38,7 +39,9 @@ def displace_reverse(pos, delta, box_size):
     gc.collect()
     
     #reverse displacement field
-    psi = -1j*KAR / KSQ_st * deltaf_st
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore', category=RuntimeWarning)
+        psi = -1j*KAR / KSQ_st * deltaf_st
     psi[0,0,0] = 0
     psi[int(ncells[0]/2),:,:] = 0
     psi[:,int(ncells[1]/2),:] = 0
@@ -52,9 +55,9 @@ def displace_reverse(pos, delta, box_size):
     ipsif = ifft(ipsif, axis = 2)
 
     #CIC interpolation                                                                                                                                                                                                                                                                                                        
-    ipsifx = ipsif[:,:,:,0].astype("float32")
-    ipsify = ipsif[:,:,:,1].astype("float32")
-    ipsifz = ipsif[:,:,:,2].astype("float32")
+    ipsifx = ipsif[:,:,:,0].real
+    ipsify = ipsif[:,:,:,1].real
+    ipsifz = ipsif[:,:,:,2].real
 
     del ipsif
     gc.collect()

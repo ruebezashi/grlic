@@ -30,17 +30,19 @@ def create_glass():
         r = cosmology.z_to_r(z)
         min_r = np.min(r)
         max_r = np.max(r)
-
+        print("minimum r: ", min_r, ", maximum r: ", max_r)
         r_list, n_list = n_of_r.fitted(r, min_mu)
 
     elif n_provided != "":
+        print("using tabulated n(r)...")
         N = N_cat
+        print("number of particles in the catalogue: ", N)
         min_mu = mumin
 
         min_r = rmin
         max_r = rmax
-   
-        r_list, n_list = n_of_r.tabulated()
+        print("minimum r: ", min_r, ", maximum r: ", max_r)
+        r_list, n_list = n_of_r.tabulated(min_r, max_r)
 
     r_list, n_list, n0, n1 = n_of_r.buffered(r_list,n_list)
 
@@ -51,6 +53,7 @@ def create_glass():
 
         #create box that encompasses full sphere plus buffer zone
         box_size = np.ones(3)*(max_r + bufferr)*2
+        print("size of box: ",box_size)
         n_grid = box_particles.n_grid_cube(box_size, cs_n)
 
         #generate Poisson-sampled n(r) random within survey volume
@@ -73,7 +76,6 @@ def create_glass():
         for i in range(n_iter):
             pos = zeldovich.displace_reverse(pos, delta, box_size)
             delta = box_particles.delta_grid_cube(pos, box_size, n_grid)
-        
 
         #return r, mu, phi of random catalogue within survey volume
         pos[:,0], pos[:,1], pos[:,2] = units.cartesian_to_spherical(pos[:,0], pos[:,1], pos[:,2])

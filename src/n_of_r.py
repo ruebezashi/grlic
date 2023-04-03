@@ -35,11 +35,12 @@ def fitted(r, mumin):
 
 
 #reads in tabulated n(r) provided by user
-def tabulated():
+def tabulated(rmin, rmax):
 
     r_list, n_list = np.loadtxt(n_provided, usecols = [0,1], unpack = True)
-
-    return(r_list, n_list)
+    mask = (r_list >= rmin) & (r_list <= rmax)
+    
+    return(r_list[mask], n_list[mask])
 
 
 #extends the lists of comoving distances r_list and corresponding comoving number density n_list with a buffer zone of length bufferr

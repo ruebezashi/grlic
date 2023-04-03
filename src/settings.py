@@ -13,19 +13,19 @@ Omega_l= 0.680947669
 mumin = -1
 
 #minimum comoving distance, only used if tabulated n(r) is provided, otherwise this quantity is derived from the list of observed redshifts in the file
-rmin = 300
+rmin = 148.09807046749074
 
 #maxmimum comoving distance, only used if tabulated n(r) is provided, otherwise this quantity is derived from the list of observed redshifts in the file
-rmax = 1200
+rmax = 1313.4338511446397
 
 #number of objects in the data catalogue, only used if tabulated n(r) is provided, otherwise this quantity is derived from the list of observed redshifts in the file
-N_cat = 5000000
+N_cat = 4999574
 
 
 # input files #######################################
 
 #path to data catalogue, expects three columns: redshift z, angular position mu and phi, where mu is cos(theta), theta the polar angle and phi the azimuthal angle
-data = "/home/sebastian/cat_part_1162568" 
+data = "" 
 
 #path to tabulated number density file, reads out first two columns in the file, r in Mpc/h and n in h^3 Mpc^(-3)
 n_provided = ""

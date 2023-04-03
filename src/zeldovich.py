@@ -25,7 +25,6 @@ def displace_reverse(pos, delta, box_size):
     kx = (fftfreq(ncells[0], box_size[0]/ncells[0])*2*np.pi).astype("csingle")
     ky = (fftfreq(ncells[1], box_size[1]/ncells[1])*2*np.pi).astype("csingle")
     kz = (fftfreq(ncells[2], box_size[2]/ncells[2])*2*np.pi).astype("csingle")
-    print(kx)
     #get FT-displacement field from FT-delta                                                                                                                                                                                                                                                                                  
     psi = np.zeros((ncells[0],ncells[1],ncells[2],3)).astype("csingle")
     KX, KY, KZ = np.meshgrid(kx,ky,kz, indexing = "ij")

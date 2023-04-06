@@ -28,8 +28,8 @@ This will create a glass-like random catalogue according to the settings specifi
 
 Currently, there are two ways of generating a glass with grlic:
 
-    1. The user can provide a path to a data catalogue in the settings.py file (data = ""), which contains three columns: the redshift (z), cosine angle of the polar angle (µ) and the azimuthal angle (phi) of each object in the catalogue. grlic will then generate a glass that follows the same distribution as the provided data catalogue.
-    2. The user can also provide a file that contains the number density n at each comoving distance r (n_provided = ""), here the first column should be the comoving distance r and the second one should be the number density in units of (h/Mpc)^3. grlic will then generate a glass that follows the provided number density distribution.
+- The user can provide a path to a data catalogue in the settings.py file (data = ""), which contains three columns: the redshift (z), cosine angle of the polar angle (µ) and the azimuthal angle (phi) of each object in the catalogue. grlic will then generate a glass that follows the same distribution as the provided data catalogue.
+- The user can also provide a file that contains the number density n at each comoving distance r (n_provided = ""), here the first column should be the comoving distance r and the second one should be the number density in units of (h/Mpc)^3. grlic will then generate a glass that follows the provided number density distribution.
 
 Per default, an example is provided in the settings, which reads a tabulated n(r) distribution from "n_of_r.dat" and generates a glass saved as "glass.dat" within a survey volume with minimal comoving distance rmin, maximum comoving distance rmax and cosine of the opening angle mumin. A central slice through the glass, with a thickness of 50Mpc/h, can be plotted with the "plot_glass.py" script.
 

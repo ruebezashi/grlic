@@ -1,78 +1,68 @@
 import gc
 import numpy as np
-import warnings
+from numba import jit
 
-from scipy.fft import fftfreq
-from scipy.fft import fft
-from scipy.fft import ifft
+import warnings
+from numpy.fft import rfftn, irfftn, fftfreq, rfftfreq
+
+
 
 import MAS_library as MASL
 
 from settings import cell_size
 
-def displace_reverse(pos, delta, box_size):
+#calculates the fourier space displacement field from the fourier space density contrast
+@jit(nopython=True)
+def psi_from_delta(delta, kx, ky, kz, ncells):
+    len_x = delta.shape[0]
+    len_y = delta.shape[1]
+    len_z = delta.shape[2]
+    psi = np.empty((len_x,len_y,len_z,3), dtype = np.complex64)
+    for i in range(len_x):
+        for j in range(len_y):
+            for k in range(len_z):
+                if ((i == 0) and (j == 0) and (k == 0)) or ((i == int(ncells[0]/2)) or (j == int(ncells[1]/2)) or k == (int(ncells[2]/2))):
+                    psi[i,j,k,:] = 0
+                else:
+                    psi[i,j,k,:] = - 1j * np.array([kx[i],ky[j],kz[k]]) / (kx[i]**2 + ky[j]**2 + kz[k]**2) * delta[i,j,k]
+    return(psi)
 
+
+def displace_reverse(pos, delta, box_size):
+    print("displacing particles...")
 
     ncells = (box_size/cell_size).astype("int") + (box_size/cell_size).astype("int")%2
 
     # fourier transform delta in 3D                                                                                                                                                                                                                                                                                           
-    deltaf = fft(delta, axis = 0).astype("csingle")
-    del delta
-    deltaf = fft(deltaf, axis = 1).astype("csingle")
-    deltaf = fft(deltaf, axis = 2).astype("csingle")
+    delta = rfftn(delta).astype("csingle")
 
     #unit of fftfreq is in cycles / Mpc/h -> to get to h/Mpc multiply by 2pi                                                                                                                                                                                                                                                  
-    kx = (fftfreq(ncells[0], box_size[0]/ncells[0])*2*np.pi).astype("csingle")
-    ky = (fftfreq(ncells[1], box_size[1]/ncells[1])*2*np.pi).astype("csingle")
-    kz = (fftfreq(ncells[2], box_size[2]/ncells[2])*2*np.pi).astype("csingle")
+    kx = (fftfreq(ncells[0], box_size[0]/ncells[0])*2*np.pi).astype("float32")
+    ky = (fftfreq(ncells[1], box_size[1]/ncells[1])*2*np.pi).astype("float32")
+    kz = (rfftfreq(ncells[2], box_size[2]/ncells[2])*2*np.pi).astype("float32")
     #get FT-displacement field from FT-delta                                                                                                                                                                                                                                                                                  
-    psi = np.zeros((ncells[0],ncells[1],ncells[2],3)).astype("csingle")
-    KX, KY, KZ = np.meshgrid(kx,ky,kz, indexing = "ij")
-    KSQ = (KX**2 + KY**2 + KZ**2)
-    KSQ_st = np.stack((KSQ,KSQ,KSQ), axis = 3)
-    KAR = np.stack((KX,KY,KZ),axis = 3)
-    del KX, KY, KZ, KSQ, kx, ky, kz
-    gc.collect()
-    deltaf_st = np.stack((deltaf, deltaf, deltaf), axis = 3)
-    del deltaf
-    gc.collect()
     
     #reverse displacement field
     with warnings.catch_warnings():
         warnings.simplefilter('ignore', category=RuntimeWarning)
-        psi = -1j*KAR / KSQ_st * deltaf_st
-    psi[0,0,0] = 0
-    psi[int(ncells[0]/2),:,:] = 0
-    psi[:,int(ncells[1]/2),:] = 0
-    psi[:,:,int(ncells[2]/2)] = 0
+        psi = psi_from_delta(delta, kx, ky, kz, ncells)
+    del delta
+    gc.collect()
 
     #inverse FT of displacement Field                                                                                                                                                                                                                                                                                         
-    ipsif = ifft(psi, axis = 0)
-    del psi
-    gc.collect()
-    ipsif = ifft(ipsif, axis = 1)
-    ipsif = ifft(ipsif, axis = 2)
-
+    psi = irfftn(psi, axes = (0,1,2)).astype("float32")
     #CIC interpolation                                                                                                                                                                                                                                                                                                        
-    ipsifx = ipsif[:,:,:,0].real
-    ipsify = ipsif[:,:,:,1].real
-    ipsifz = ipsif[:,:,:,2].real
 
-    del ipsif
-    gc.collect()
 
-    vx = np.zeros(len(pos)).astype("float32")
-    vy = np.zeros(len(pos)).astype("float32")
-    vz = np.zeros(len(pos)).astype("float32")
-
+    vx = np.empty(len(pos)).astype("float32")
+    vy = np.empty(len(pos)).astype("float32")
+    vz = np.empty(len(pos)).astype("float32")
     #CIC interpolation scheme implemented in pylians (C) Francisco Villaescusa-Navarro
-    MASL.CIC_interp(ipsifx, box_size[0], pos+(box_size/2).astype("float32"), vx)
-    MASL.CIC_interp(ipsify, box_size[0], pos+(box_size/2).astype("float32"), vy)
-    MASL.CIC_interp(ipsifz, box_size[0], pos+(box_size/2).astype("float32"), vz)
+    MASL.CIC_interp(psi[:,:,:,0], box_size[0], pos+(box_size/2).astype("float32"), vx)
+    MASL.CIC_interp(psi[:,:,:,1], box_size[0], pos+(box_size/2).astype("float32"), vy)
+    MASL.CIC_interp(psi[:,:,:,2], box_size[0], pos+(box_size/2).astype("float32"), vz)
 
-    del ipsifx
-    del ipsify
-    del ipsifz
+    del psi
     gc.collect()
     
     pos += box_size/2

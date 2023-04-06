@@ -10,16 +10,13 @@ Omega_l= 0.680947669
 # survey parameters #################################
 
 #cosine of the half-opening angle of the survey
-mumin = -1
+mumin = 0.3
 
 #minimum comoving distance, only used if tabulated n(r) is provided, otherwise this quantity is derived from the list of observed redshifts in the file
-rmin = 148.09807046749074
+rmin = 200
 
 #maxmimum comoving distance, only used if tabulated n(r) is provided, otherwise this quantity is derived from the list of observed redshifts in the file
-rmax = 1313.4338511446397
-
-#number of objects in the data catalogue, only used if tabulated n(r) is provided, otherwise this quantity is derived from the list of observed redshifts in the file
-N_cat = 4999574
+rmax = 1300
 
 
 # input files #######################################
@@ -28,7 +25,7 @@ N_cat = 4999574
 data = "" 
 
 #path to tabulated number density file, reads out first two columns in the file, r in Mpc/h and n in h^3 Mpc^(-3)
-n_provided = ""
+n_provided = "n_of_r.dat"
 
 # output files ######################################
 

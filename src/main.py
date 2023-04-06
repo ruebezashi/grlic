@@ -7,7 +7,7 @@ import gc
 
 # scipy library
 from scipy.interpolate import CubicSpline
-
+from scipy.integrate import quad
 
 from settings import *
 import read
@@ -23,31 +23,35 @@ def create_glass():
         #read file
         z = read.z()
         N = len(z)
-        print("number of particles in the catalogue: ", N)
+        print("number of particles in the data catalogue: ", N)
 
         min_mu = mumin
         
         r = cosmology.z_to_r(z)
         min_r = np.min(r)
         max_r = np.max(r)
-        print("minimum r: ", min_r, ", maximum r: ", max_r)
+        print("minimum r: ", min_r, ", maximum r: ", max_r, ", minimum µ:", min_mu)
         r_list, n_list = n_of_r.fitted(r, min_mu)
 
     elif n_provided != "":
         print("using tabulated n(r)...")
-        N = N_cat
-        print("number of particles in the catalogue: ", N)
+        
         min_mu = mumin
 
         min_r = rmin
         max_r = rmax
-        print("minimum r: ", min_r, ", maximum r: ", max_r)
+        print("minimum r: ", min_r, ", maximum r: ", max_r, ", minimum µ:", min_mu)
         r_list, n_list = n_of_r.tabulated(min_r, max_r)
 
     r_list, n_list, n0, n1 = n_of_r.buffered(r_list,n_list)
 
     #create cubic spline interpolation for n(r)
     cs_n = CubicSpline(r_list,n_list)
+
+    if n_provided != "":
+        #integrate number density to get N
+        N = int(quad(poisson.num_dens, rmin, rmax, args = (cs_n,  min_mu))[0])
+        print("number of particles in the data catalogue, estimated from n(r): ", N)
 
     if box_mode == "spherical":
 
@@ -57,9 +61,8 @@ def create_glass():
         n_grid = box_particles.n_grid_cube(box_size, cs_n)
 
         #generate Poisson-sampled n(r) random within survey volume
-        x_r, y_r, z_r = poisson.random_full(r_list, n_list, N, min_r, max_r, min_mu)
+        x_r, y_r, z_r = poisson.random_full(cs_n, N, min_r, max_r, min_mu)
         x_r, y_r, z_r = units.spherical_to_cartesian(x_r, y_r, z_r)
-        print("number of particles in the random catalogue: ", len(x_r))
 
         #generate Poisson-sampled uniform random outside of survey volume
         out_x, out_y, out_z = poisson.random_full_complement(min_r, n0, max_r, n1, box_size)

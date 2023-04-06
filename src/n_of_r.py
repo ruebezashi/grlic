@@ -11,6 +11,7 @@ def f(r, p):
     return(f)
 
 
+
 #estimates n(r) from the list of comoving distances r by creating a number counts N(r) histogram, and fitting a polynomial to the n(r) derived from the survey shape
 def fitted(r, mumin):
     

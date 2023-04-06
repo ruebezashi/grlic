@@ -10,6 +10,11 @@ def prob_dens(r, n, N, mumin):
     
     return(2*(1-mumin)*np.pi/N*n(r)*r**2)
 
+
+#integrand over which the integral to get the number of objects within the survey N is performed
+def num_dens(r, n, mumin):
+    
+    return(2*(1-mumin)*np.pi*n(r)*r**2)
 '''
 #returns the cumulative probability given a polynomial with coefficients p, taking the survey volume into account (normalizing by the number of objects in the data catalogue N)
 def cumul_polynomial(r, p, N, mumin, rmin):
@@ -20,14 +25,9 @@ def cumul_polynomial(r, p, N, mumin, rmin):
     return(f)
 '''
 
-#generates a poisson sampled random catalogue on the full spherical shell with alpha times N_cat objects in the actual survey volume, based on the n(r) of a data catalogue with N_cat objects, assuming a spherical cone shape with half-opening cosine angle mu_min and limits r_min to r_max
+#generates a poisson sampled random catalogue on the full spherical shell with alpha times N_cat objects in the actual survey volume, based on the interpolated n(r) (using the cs function) of a data catalogue with N_cat objects, assuming a spherical cone shape with half-opening cosine angle mu_min and limits r_min to r_max
 #the survey volume will contain alpha times N_cat objects, the rest of the spherical shell will be filled up with objects according to the same n(r)
-def random_full(r, n, N_cat, rmin, rmax, mumin):
-
-
-
-    #cubic spline interpolate n(r) finely for accurate numerical integration
-    spline1 = CubicSpline(r,n)
+def random_full(cs, N_cat, rmin, rmax, mumin):
     
     #10.000 interpolated points
     x = np.linspace(rmin, rmax, 10000)
@@ -37,7 +37,7 @@ def random_full(r, n, N_cat, rmin, rmax, mumin):
 
     #integrate probability density
     for i in range(len(x)):
-        cumul[i] = quad(prob_dens, rmin, x[i], args = (spline1, N_cat, mumin))[0]
+        cumul[i] = quad(prob_dens, rmin, x[i], args = (cs, N_cat, mumin))[0]
     
     #invert cumulative probability with cubic spline interpolation
     inverse_cumul = CubicSpline(cumul, x)

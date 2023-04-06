@@ -2,7 +2,9 @@
 
 ## Description
 
-grlic is a python tool which produces glass-like random catalogues with a specified radially-dependent number density distribution. Such catalogues can be used for precise estimates of N-point correlation functions of tracers on the backward light cone. The Landy-Szalay estimator of the two-point correlation function using these glass-like catalogues is unbiased and has much lower variance than the estimator using Poisson-sampled random catalogues.
+grlic is a Python tool which produces glass-like random catalogues with a specified radially-dependent number density distribution. Such catalogues can be used for precise estimates of N-point correlation functions of tracers on the backward light cone. The Landy-Szalay estimator of the two-point correlation function using these glass-like catalogues is unbiased and has much lower variance than the estimator using Poisson-sampled random catalogues.
+
+See https://arxiv.org/abs/2304.02040 for the article where grlic is introduced.
 
 ## Requirements
 

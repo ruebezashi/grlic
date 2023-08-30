@@ -72,7 +72,7 @@ z_interp = 1000
 
 #number of bins in the histogram of n(r) used to perform the polynomial fit
 nbins = 100
-#degree of the polynomial fit to the number density histogram, default = 3, degrees from 1 to 6 are supported
+#degree of the polynomial fit to the number density histogram, default = 3, but any degree is supported
 deg = 3
 
 #number of points in the buffer zone that is appended to the list of r values and comoving number densities inside the survey volume

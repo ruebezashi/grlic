@@ -58,21 +58,21 @@ def displace_reverse(pos, delta, box_size):
     vy = np.empty(len(pos)).astype("float32")
     vz = np.empty(len(pos)).astype("float32")
     #CIC interpolation scheme implemented in pylians (C) Francisco Villaescusa-Navarro
-    MASL.CIC_interp(psi[:,:,:,0], box_size[0], pos+(box_size/2).astype("float32"), vx)
-    MASL.CIC_interp(psi[:,:,:,1], box_size[0], pos+(box_size/2).astype("float32"), vy)
-    MASL.CIC_interp(psi[:,:,:,2], box_size[0], pos+(box_size/2).astype("float32"), vz)
+    MASL.CIC_interp(psi[:,:,:,0], box_size[0], pos+(box_size/2-box_size/2/ncells).astype("float32"), vx)
+    MASL.CIC_interp(psi[:,:,:,1], box_size[0], pos+(box_size/2-box_size/2/ncells).astype("float32"), vy)
+    MASL.CIC_interp(psi[:,:,:,2], box_size[0], pos+(box_size/2-box_size/2/ncells).astype("float32"), vz)
 
     del psi
     gc.collect()
     
-    pos += box_size/2
+    pos = (pos + box_size/2).astype("float32")
 
 
     pos[:,0] = (pos[:,0] + vx)%box_size[0]
     pos[:,1] = (pos[:,1] + vy)%box_size[1]
     pos[:,2] = (pos[:,2] + vz)%box_size[2]
 
-    pos -= box_size/2
+    pos = (pos - box_size/2).astype("float32")
     del vx, vy, vz
     gc.collect()
     return(pos)

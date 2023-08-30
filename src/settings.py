@@ -43,18 +43,22 @@ bufferr = 400
 
 #grid cell side length in Mpc/h
 #will be adapted slightly to fit even number of cells into the box
-cell_size = 10
+cell_size = 10 #10
 
 
 # glass parameters #################################
 
-#alpha factor that determines the number of objects in the random catalogue
+#alpha factor that determines the number of objects in the random catalogue, i.e. the number of objects in the data catalogue is multiplied by this factor to get the number of objects in the random catalogue
 alpha = 1
 
-#number of Zeldovich iterations
+#number of Zeldovich iterations, set to "" if delta_reduction is preferred for stopping the iterations
 n_iter = 2
 
+#the desired minimum reduction of the density fluctuations of the original Poisson distribution in percent. Must be a value between 0 and 100. Only used if n_iter = "".
+delta_reduction = ""
 
+#maximum number of iterations if n_iter is not given, prevents infinite loop if delta_reduction method is not converging
+n_iter_max = ""
 #####################################################
 # precision settings                                #
 #####################################################

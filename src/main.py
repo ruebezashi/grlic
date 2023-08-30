@@ -1,4 +1,4 @@
-
+import matplotlib.pyplot as plt
 # numpy library
 import numpy as np
 
@@ -58,12 +58,14 @@ def create_glass():
         #create box that encompasses full sphere plus buffer zone
         box_size = np.ones(3)*(max_r + bufferr)*2
         print("size of box: ",box_size)
-        n_grid = box_particles.n_grid_cube(box_size, cs_n)
+        n_grid, r_grid = box_particles.n_grid_cube(box_size, cs_n)
 
+        print("generating poisson random in survey...")
         #generate Poisson-sampled n(r) random within survey volume
         x_r, y_r, z_r = poisson.random_full(cs_n, N, min_r, max_r, min_mu)
         x_r, y_r, z_r = units.spherical_to_cartesian(x_r, y_r, z_r)
 
+        print("generate poisson random outside of survey...")
         #generate Poisson-sampled uniform random outside of survey volume
         out_x, out_y, out_z = poisson.random_full_complement(min_r, n0, max_r, n1, box_size)
         
@@ -71,15 +73,38 @@ def create_glass():
 
         del x_r, y_r, z_r, out_x, out_y, out_z
         gc.collect()
-
+        print("calculate density contrast")
         #calculate density contrast with respect to n(r) defined on n_grid
         delta = box_particles.delta_grid_cube(pos, box_size, n_grid)
-       
-        #iterate Zeldovich displacement
-        for i in range(n_iter):
-            pos = zeldovich.displace_reverse(pos, delta, box_size)
-            delta = box_particles.delta_grid_cube(pos, box_size, n_grid)
 
+        if n_iter == "":
+            print("Performing Zeldovich iterations until the initial Poisson variance has been reduced by " + str(delta_reduction) + " percent ... \n")
+            #calculate expected Poisson variance of CIC deltas in each grid cell
+            ncells = (box_size/cell_size).astype("int") + (box_size/cell_size).astype("int")%2
+            act_cell_size = box_size[0]/ncells[0]
+            exp_N_per_cell = (n_grid*act_cell_size**3)
+            exp_var = np.mean(exp_N_per_cell)*8/27
+            act_var = np.mean((delta*exp_N_per_cell)**2)
+            perc_reduction = (1 - act_var/exp_var)*100
+            #iterate Zeldovich displacement
+            iter_steps = 0
+            while (perc_reduction < delta_reduction) & (iter_steps < n_iter_max):
+                pos = zeldovich.displace_reverse(pos, delta, box_size)
+                delta = box_particles.delta_grid_cube(pos, box_size, n_grid)
+        
+                perc_reduction = (1-np.mean((delta*exp_N_per_cell)**2)/exp_var)*100
+                print("Poisson variance reduced by " + str(perc_reduction) + " percent \n")
+
+                iter_steps += 1
+                if iter_steps >= n_iter_max:
+                    print("Maximum number of iterations reached, stopping iteration of Zeldovich displacement.")
+        if n_iter != "":
+            print("Performing " + str(n_iter) + " Zeldovich iterations... \n")
+            #iterate Zeldovich displacement
+            for i in range(n_iter):
+                pos = zeldovich.displace_reverse(pos, delta, box_size)
+                delta = box_particles.delta_grid_cube(pos, box_size, n_grid)
+        
         #return r, mu, phi of random catalogue within survey volume
         pos[:,0], pos[:,1], pos[:,2] = units.cartesian_to_spherical(pos[:,0], pos[:,1], pos[:,2])
         

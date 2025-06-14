@@ -38,7 +38,7 @@ Per default, an example is provided in the settings, which reads a tabulated n(r
 ## Support
 Any issues and questions will be answered by the author of the code, Sebastian Schulz:
 
-E-Mail: sebastian.schulz@uzh.ch
+E-Mail: sebastianschulz713@gmail.com
 
 ## Data repository
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7799509.svg)](https://doi.org/10.5281/zenodo.7799509)
